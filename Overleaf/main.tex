@@ -1,0 +1,86 @@
+%Prepared by Noureen Islam, CSE, IUB
+\documentclass[a4paper, 12pt]{report}
+\usepackage[a4paper,top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage[onehalfspacing]{setspace}
+\usepackage{graphicx}
+%changing the image path
+\graphicspath{ {images/} }
+%package for referencing
+\usepackage{hyperref}
+%stopping re-positioning of tables
+\usepackage{float}
+%indenting the starting paragraph of each section
+\usepackage{indentfirst}
+%matrix
+\usepackage{amsmath}
+%page numbering
+\usepackage[utf8]{inputenc}
+%header and footer
+\usepackage{fancyhdr}
+%last page
+\usepackage{lastpage}
+
+%temporary lipsum - delete it
+\usepackage{lipsum}  
+
+
+%keywords
+\providecommand{\keywords}[1]
+{
+  \small	
+  \textbf{\textit{Keywords---}} #1
+}
+
+
+%beginning of the document
+\begin{document}
+
+%roman page numbering
+\pagenumbering{roman}
+%header and footer
+\pagestyle{fancy}
+\cfoot[]{Page \thepage\ of \pageref{LastPage}}
+
+%Initial Inputs
+\input{entry_chapters/titlepage}
+\input{entry_chapters/attestation}
+\addcontentsline{toc}{chapter}{\numberline{}Attestation}
+\input{entry_chapters/declaration_of_authorship}
+\addcontentsline{toc}{chapter}{\numberline{}Declaration of Authorship}
+\input{entry_chapters/acknowledgement}
+\addcontentsline{toc}{chapter}{\numberline{}Acknowledgement}
+\input{entry_chapters/evaluation_committee}
+\addcontentsline{toc}{chapter}{\numberline{}Evaluation Committee}
+\input{entry_chapters/abstract.tex}
+\addcontentsline{toc}{chapter}{\numberline{}Abstract}
+
+
+%Contents, Figures \& Tables
+\tableofcontents
+\listoffigures
+\listoftables
+
+%ending the current page
+\clearpage
+
+%Main Contents
+%arabic page numbering
+\pagenumbering{arabic}
+
+\input{primary_chapters/1_introduction}
+\input{primary_chapters/2_literature_review}
+\input{primary_chapters/3_project_planning}
+\input{primary_chapters/4_air_quality_monitoring_system}
+\input{primary_chapters/results_and_analysis}
+\input{primary_chapters/project_as_engineering_problem_analysis}
+\input{primary_chapters/lesson_learned}
+\input{primary_chapters/future_work_and_conclusion}
+
+%bibliography
+%*** watch this video https://www.youtube.com/watch?v=KS9GvK7cvmo ***
+\bibliographystyle{ieeetr}
+\bibliography{bibtex}
+\addcontentsline{toc}{chapter}{\numberline{}Bibliography}
+\end{document}
+
+%Prepared by Md. Asif Bin Khaled, Lecturer, SETS, IUB

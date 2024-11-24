@@ -1,0 +1,9 @@
+Initially, we identified all the missing data, noisy data, and global outliers caused due to equipment malfunction and have inconsistencies with other recorded data using One-Class Support Vector Machine (SVM). One-Class SVM is used in one-class problems, in which all data belongs to the same class. In One-Class SVM, the algorithm knows the pattern of normal data therefore, when new data comes it can identify whether the data is normal or not. If not, the new data is classified as anomalous. The quadratic minimization function for one class svm is stated below.
+\begin{equation}
+\begin{aligned}
+\underset{w,\ \xi_i,\ p}{min} \ \frac{1}{2} \lVert w \rVert ^2 + \frac{1}{\nu n} \sum_{i=1}^{n} \xi_i - \rho \\ 
+\mbox{ subject to: } \\
+(w \cdot \phi(x_i)) \geq \rho - \xi_i \quad\quad \mbox{ for all } i = 1, \dots, n \\
+\xi_i \geq 0 \quad\quad \mbox{ for all } i = 1, \dots, n \\
+\end{aligned}
+\end{equation}

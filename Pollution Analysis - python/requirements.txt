@@ -1,0 +1,17 @@
+Following libraries need to be installed
+
+requests : pip install requests
+matplotlib : pip install matplotlib
+pandas :pip install pandas
+
+cartopy : it can't be installed from pip
+
+Watch cartopy installation here : https://www.youtube.com/watch?v=qxSCoR9BO6A&feature=youtu.be
+
+
+Api : waqi.info
+Get api key : https://aqicn.org/data-platform/token/#/
+
+
+
+- Search pyGuru on youtube if any error or doubt -

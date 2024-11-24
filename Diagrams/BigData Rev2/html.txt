@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <style>
+  /* Style to reverse the caret icon from pointing downwards to upwards */
+  .caret.caret-up {
+    border-top-width: 0;
+    border-bottom: 4px solid #fff;
+  }
+  </style>
+  <style>
+* {
+  box-sizing: border-box;
+}
+
+/* Create two unequal columns that floats next to each other */
+.column {
+  float: left;
+  padding: 10px;
+  height: 300px; /* Should be removed. Only for demonstration */
+}
+
+.left {
+  width: 25%;
+}
+
+.right {
+  width: 75%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.w3-btn {margin-bottom:10px;}
+</style>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+<body>
+
+<div class="container">
+  <h2><b>Box Plot of PM2.5 concentration</b></h2>                                       
+  <div class="dropdown" style="float:left;margin-right:30px;">
+  <!-- <button type="button" class="btn btn-light">Light</button> -->
+    <button class="btn w3-white w3-border w3-border-blue w3-round-large" type="button" data-toggle="dropdown">Time : Monthly
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+      <li><a href="#">Day</a></li>
+      <li><a href="#">Night</a></li>
+      <li><a href="#">Hourly</a></li>
+      <li><a href="#">Monthly</a></li>
+    </ul>
+  </div>
+  <div class="dropdown" style="float:center;margin :10px;">
+    <button class="btn w3-white w3-border w3-border-blue w3-round-large" type="button" data-toggle="dropdown2">Season : All Season
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+      <li><a href="#">Day</a></li>
+      <li><a href="#">Night</a></li>
+      <li><a href="#">Hourly</a></li>
+      <li><a href="#">Monthly</a></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+$(document).ready(function(){
+  $(".dropdown").on("hide.bs.dropdown", function(){
+    $(".btn").html('Select Time <span class="caret"></span>');
+  });
+  $(".dropdown").on("show.bs.dropdown", function(){
+    $(".btn").html('Select Time <span class="caret caret-up"></span>');
+  });
+});
+</script>
+
+</body>
+</html>
