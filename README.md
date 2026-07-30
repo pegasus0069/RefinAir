@@ -68,9 +68,3 @@ jupyter lab
 
 **Contact / Author**
 - Repository maintained by the RefinAir project contributors. For questions or to collaborate, open an issue or contact the original author listed in the project files.
-
----
-Small next steps I can do for you:
-- Generate a `requirements.txt` with the packages used by the Python analysis.
-- Add short READMEs inside `Pollution Analysis - python/` and `Arduino_Code/` showing exact run/flash commands.
-If you'd like one of these, tell me which and I'll add it.
