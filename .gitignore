@@ -33,9 +33,10 @@ venv/
 ENV/
 .env
 
-# PyInstaller / Executables
+# PyInstaller / Executables / Release Archives
 *.exe
 *.spec
+*.zip
 
 # IDE / Editor configs
 .vscode/
