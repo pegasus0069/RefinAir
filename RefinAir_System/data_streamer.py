@@ -14,9 +14,18 @@ import pandas as pd
 import numpy as np
 
 # Path to the preprocessed dataset
-DATASET_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "PM2.5 Data", "Preprocessed Dataset.csv")
-)
+def _get_dataset_path():
+    import sys
+    base_dir = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    local_path = os.path.join(base_dir, "data", "Preprocessed Dataset.csv")
+    if os.path.exists(local_path):
+        return local_path
+    parent_path = os.path.abspath(os.path.join(base_dir, "..", "PM2.5 Data", "Preprocessed Dataset.csv"))
+    if os.path.exists(parent_path):
+        return parent_path
+    return local_path
+
+DATASET_PATH = _get_dataset_path()
 
 # Multi-Device Registry: Telemetry Nodes with IUB Campus Deployment as Primary
 DEVICES = {
@@ -130,9 +139,17 @@ class DataStreamer:
             "divisions_updated": 0,
             "industrial": None,
             "industrial_updated": 0,
-            "ttl": 600 # 10-minute cache TTL
+            "ttl": 600, # 10-minute cache TTL
+            "syncing_divisions": False,
+            "syncing_industrial": False
         }
         self.load_dataset()
+        # Pre-seed cache with calibrated baseline so map API responds instantaneously from cold start
+        self.online_cache["divisions"] = self._get_fallback_division_stations()
+        self.online_cache["industrial"] = self._get_fallback_industrial_zones()
+        # Trigger background online sync if internet is available
+        self._trigger_background_divisions_sync()
+        self._trigger_background_industrial_sync()
 
     def load_dataset(self):
         if not os.path.exists(self.dataset_path):
@@ -793,10 +810,10 @@ class DataStreamer:
         w_url = f"https://api.open-meteo.com/v1/forecast?latitude={lats}&longitude={lngs}&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m"
 
         req_aq = urllib.request.Request(aq_url, headers={"User-Agent": "RefinAir-GIS/2.4 (Independent University, Bangladesh)"})
-        res_aq = json.loads(urllib.request.urlopen(req_aq, timeout=4.0).read().decode("utf-8"))
+        res_aq = json.loads(urllib.request.urlopen(req_aq, timeout=8.0).read().decode("utf-8"))
 
         req_w = urllib.request.Request(w_url, headers={"User-Agent": "RefinAir-GIS/2.4 (Independent University, Bangladesh)"})
-        res_w = json.loads(urllib.request.urlopen(req_w, timeout=4.0).read().decode("utf-8"))
+        res_w = json.loads(urllib.request.urlopen(req_w, timeout=8.0).read().decode("utf-8"))
 
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         results = []
@@ -906,29 +923,36 @@ class DataStreamer:
         """
         Returns real-time telemetry for all 8 administrative divisions of Bangladesh
         from online Copernicus CAMS & ECMWF observations, with cached resilience
-        and calibrated fallback.
+        and calibrated fallback. Responds instantaneously without blocking.
         """
         now_ts = time.time()
-        # Check cache validity (10-minute TTL)
-        if (
-            self.online_cache.get("divisions") is not None
-            and (now_ts - self.online_cache.get("divisions_updated", 0)) < self.online_cache["ttl"]
-        ):
-            return self.online_cache["divisions"]
-
-        try:
-            online_data = self._fetch_online_division_stations()
-            if online_data and len(online_data) == 8:
-                self.online_cache["divisions"] = online_data
-                self.online_cache["divisions_updated"] = now_ts
-                return online_data
-        except Exception as e:
-            print(f"[RefinAir GIS Ingestion Warning] Live online divisions fetch failed ({e}). Serving cached or calibrated model.")
+        # Trigger background refresh if cache is older than TTL
+        if (now_ts - self.online_cache.get("divisions_updated", 0)) >= self.online_cache["ttl"]:
+            self._trigger_background_divisions_sync()
 
         if self.online_cache.get("divisions") is not None:
             return self.online_cache["divisions"]
 
         return self._get_fallback_division_stations()
+
+    def _trigger_background_divisions_sync(self):
+        if self.online_cache.get("syncing_divisions"):
+            return
+        import threading
+        def _sync_worker():
+            self.online_cache["syncing_divisions"] = True
+            try:
+                online_data = self._fetch_online_division_stations()
+                if online_data and len(online_data) == 8:
+                    self.online_cache["divisions"] = online_data
+                    self.online_cache["divisions_updated"] = time.time()
+            except Exception:
+                # Silently retain existing cached or calibrated data
+                pass
+            finally:
+                self.online_cache["syncing_divisions"] = False
+
+        threading.Thread(target=_sync_worker, daemon=True).start()
 
     def _fetch_online_industrial_zones(self):
         """
@@ -950,10 +974,10 @@ class DataStreamer:
         w_url = f"https://api.open-meteo.com/v1/forecast?latitude={lats}&longitude={lngs}&current=temperature_2m,relative_humidity_2m,wind_speed_10m"
 
         req_aq = urllib.request.Request(aq_url, headers={"User-Agent": "RefinAir-GIS/2.4 (Independent University, Bangladesh)"})
-        res_aq = json.loads(urllib.request.urlopen(req_aq, timeout=4.0).read().decode("utf-8"))
+        res_aq = json.loads(urllib.request.urlopen(req_aq, timeout=8.0).read().decode("utf-8"))
 
         req_w = urllib.request.Request(w_url, headers={"User-Agent": "RefinAir-GIS/2.4 (Independent University, Bangladesh)"})
-        res_w = json.loads(urllib.request.urlopen(req_w, timeout=4.0).read().decode("utf-8"))
+        res_w = json.loads(urllib.request.urlopen(req_w, timeout=8.0).read().decode("utf-8"))
 
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         results = []
@@ -1054,27 +1078,35 @@ class DataStreamer:
         """
         Returns real-time industrial corridor and power plant monitoring zones
         from online Copernicus CAMS observations, with cached resilience.
+        Responds instantaneously without blocking.
         """
         now_ts = time.time()
-        if (
-            self.online_cache.get("industrial") is not None
-            and (now_ts - self.online_cache.get("industrial_updated", 0)) < self.online_cache["ttl"]
-        ):
-            return self.online_cache["industrial"]
-
-        try:
-            online_zones = self._fetch_online_industrial_zones()
-            if online_zones and len(online_zones) == 5:
-                self.online_cache["industrial"] = online_zones
-                self.online_cache["industrial_updated"] = now_ts
-                return online_zones
-        except Exception as e:
-            print(f"[RefinAir GIS Ingestion Warning] Live online industrial zones fetch failed ({e}). Serving cached or calibrated model.")
+        if (now_ts - self.online_cache.get("industrial_updated", 0)) >= self.online_cache["ttl"]:
+            self._trigger_background_industrial_sync()
 
         if self.online_cache.get("industrial") is not None:
             return self.online_cache["industrial"]
 
         return self._get_fallback_industrial_zones()
+
+    def _trigger_background_industrial_sync(self):
+        if self.online_cache.get("syncing_industrial"):
+            return
+        import threading
+        def _sync_worker():
+            self.online_cache["syncing_industrial"] = True
+            try:
+                online_zones = self._fetch_online_industrial_zones()
+                if online_zones and len(online_zones) == 5:
+                    self.online_cache["industrial"] = online_zones
+                    self.online_cache["industrial_updated"] = time.time()
+            except Exception:
+                # Silently retain existing cached or calibrated data
+                pass
+            finally:
+                self.online_cache["syncing_industrial"] = False
+
+        threading.Thread(target=_sync_worker, daemon=True).start()
 
     def get_transit_nodes(self):
         """

@@ -4,27 +4,46 @@ Web Server & High-Performance REST API
 """
 
 import os
+import sys
 import io
 import csv
 import math
+import time
+import webbrowser
+import threading
 from datetime import datetime, timedelta
 from flask import Flask, render_template, jsonify, request, Response, send_from_directory
 from data_streamer import streamer
 from ml_engine import ml_engine
 from cfd_streamer import cfd_streamer
 
-app = Flask(__name__, static_folder="static", template_folder="templates")
+def get_base_dir():
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        return sys._MEIPASS
+    return os.path.dirname(os.path.abspath(__file__))
+
+BASE_DIR = get_base_dir()
+
+app = Flask(
+    __name__,
+    static_folder=os.path.join(BASE_DIR, "static"),
+    template_folder=os.path.join(BASE_DIR, "templates")
+)
 app.config["JSON_SORT_KEYS"] = False
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 app.jinja_env.auto_reload = True
 
 # Workspace root path for referencing original diagrams and datasets
-WORKSPACE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+WORKSPACE_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/poster")
+def poster():
+    return render_template("poster.html")
 
 @app.route("/api/telemetry/live")
 def api_live_telemetry():
@@ -326,10 +345,30 @@ def api_classroom_spatial_nodes():
     data = cfd_streamer.get_live_spatial_nodes()
     return jsonify({"status": "success", "data": data})
 
+def open_browser(port):
+    time.sleep(1.2)
+    url = f"http://127.0.0.1:{port}"
+    try:
+        webbrowser.open(url)
+    except Exception:
+        pass
+
 if __name__ == "__main__":
+    port = 5000
     print("=" * 70)
     print("RefinAir: Atmospheric & Indoor Environmental Intelligence System")
-    print("Independent University, Bangladesh (IUB) Collaborative Research Platform")
-    print("Live Server running at: http://127.0.0.1:5000")
+    print("Independent University, Bangladesh (IUB) Research Platform")
+    print(f"Launching RefinAir Dashboard at: http://127.0.0.1:{port}")
     print("=" * 70)
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    print("Opening web dashboard in your default browser...")
+    print("To stop the server, press Ctrl+C or close this window.")
+    print("=" * 70)
+
+    threading.Thread(target=open_browser, args=(port,), daemon=True).start()
+
+    try:
+        from waitress import serve
+        serve(app, host="0.0.0.0", port=port, threads=8)
+    except ImportError:
+        app.run(host="0.0.0.0", port=port, debug=False)
+

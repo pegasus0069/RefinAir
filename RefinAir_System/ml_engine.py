@@ -14,12 +14,20 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import xgboost as xgb
 
-TRAIN_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "PM2.5 Data", "Train Dataset (Updated).csv")
-)
-TEST_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "PM2.5 Data", "Test Dataset (Updated).csv")
-)
+def _get_ml_paths():
+    import sys
+    base_dir = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    train_local = os.path.join(base_dir, "data", "Train Dataset (Updated).csv")
+    test_local = os.path.join(base_dir, "data", "Test Dataset (Updated).csv")
+    if os.path.exists(train_local) and os.path.exists(test_local):
+        return train_local, test_local
+    train_parent = os.path.abspath(os.path.join(base_dir, "..", "PM2.5 Data", "Train Dataset (Updated).csv"))
+    test_parent = os.path.abspath(os.path.join(base_dir, "..", "PM2.5 Data", "Test Dataset (Updated).csv"))
+    if os.path.exists(train_parent) and os.path.exists(test_parent):
+        return train_parent, test_parent
+    return train_local, test_local
+
+TRAIN_PATH, TEST_PATH = _get_ml_paths()
 
 FEATURE_NAMES = [
     "AOD_550",

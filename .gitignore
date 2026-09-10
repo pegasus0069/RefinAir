@@ -28,9 +28,14 @@ wheels/
 *.egg
 
 # Virtual environments
+.venv/
 venv/
 ENV/
 .env
+
+# PyInstaller / Executables
+*.exe
+*.spec
 
 # IDE / Editor configs
 .vscode/

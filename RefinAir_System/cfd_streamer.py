@@ -10,8 +10,14 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
-PARQUET_PATH = os.path.join(os.path.dirname(__file__), "cfd_aggregated.parquet")
-CSV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "CFD_new_data.csv"))
+def _get_cfd_paths():
+    import sys
+    base_dir = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    parquet_local = os.path.join(base_dir, "cfd_aggregated.parquet")
+    csv_parent = os.path.abspath(os.path.join(base_dir, "..", "CFD_new_data.csv"))
+    return parquet_local, csv_parent
+
+PARQUET_PATH, CSV_PATH = _get_cfd_paths()
 
 # Spatial layout of 10 sensor nodes in Classroom BC6007
 # Dimensions: Width (Horizontal: North to South) = 7.010 m, Length (Vertical: East to West) = 12.395 m, Height = 3.048 m
