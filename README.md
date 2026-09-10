@@ -12,8 +12,8 @@
 
 > **Independent University, Bangladesh (IUB)**  
 > **School of Engineering, Technology and Sciences • Department of Computer Science & Engineering**  
-> **Undergraduate Thesis & Research Project Monograph**  
-> *Author: Noor-E Sadman Arnoy (Student ID: 1730008) • Supervisor: Dr. Mahady Hasan*
+> **Research Project Monograph**  
+> *Author: Noor-E Sadman & Noureen Islam
 
 ---
 
