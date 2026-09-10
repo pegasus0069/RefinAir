@@ -1,16 +1,39 @@
-MIT License
+Restricted License - RefinAir Project
 
-Copyright (c) 2024 Noor-E Sadman Arnoy
+Copyright (c) 2024 Noor-E-Sadman and RefinAir Project Contributors
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+NOTICE: This software, data, and documentation are restricted and proprietary.
+Unauthorized copying, modification, distribution, or use is strictly prohibited.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+PERMISSION REQUIRED:
+All use, modification, distribution, or derivative works of this project require
+explicit written permission from the copyright holders and project authors.
+
+For permission requests, licensing inquiries, or collaboration opportunities,
+please contact the RefinAir project maintainers or the copyright holders listed
+in the project repository.
+
+RESTRICTIONS:
+1. You may NOT copy, modify, merge, publish, distribute, sublicense, or sell
+   copies of this software without explicit written permission.
+
+2. You may NOT use this software or data for commercial purposes without
+   explicit written permission.
+
+3. You may NOT redistribute or share this software, including code, datasets,
+   or documentation, without explicit written permission.
+
+4. You may NOT create derivative works based on this project without explicit
+   written permission.
+
+5. Academic use and collaboration are permitted only with prior written approval
+   from the copyright holders.
+
+PERMITTED USES (with written consent):
+- Academic research and education
+- Collaborative development with authorized contributors
+- Commercial deployment or integration
+- Public distribution or open-source release
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -19,3 +42,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+For inquiries: nooresadman@gmail.com / i.noureenislam@gmail.com
+

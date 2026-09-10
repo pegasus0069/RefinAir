@@ -1,3 +1,31 @@
+# Requirements for Pollution Analysis
+
+# Core data & analysis
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+
+# Interactive / notebooks
+jupyterlab
+
+# HTTP / APIs
+requests
+
+# Geospatial / satellite (may require system deps)
+cartopy
+geopandas
+pyproj
+
+# Additional data tools
+netCDF4
+xarray
+folium
+
+# Notes:
+# - Some packages (e.g., `cartopy`, `geopandas`) require system libraries
+#   (GEOS, PROJ). See the folder README for installation tips on Windows.
 Following libraries need to be installed
 
 requests : pip install requests
