@@ -46,3 +46,11 @@ ENV/
 
 # Scratch directory
 scratch/
+
+# Node & Mobile build artifacts
+node_modules/
+**/node_modules/
+.gradle/
+**/build/
+*.apk
+*.aab
