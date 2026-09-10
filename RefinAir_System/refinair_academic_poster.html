@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RefinAir Academic Poster</title>
+  <style>
+    /* A0 size at 300 dpi: 3508 × 4961 px */
+    @page {
+      size: 33in 47in;
+      margin: 0;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: #fafafa; /* light, paper-like background */
+      color: #222;
+    }
+    .poster {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      padding: 2rem;
+      box-sizing: border-box;
+    }
+    .logo {
+      width: 150px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+    .tagline {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+    .section {
+      margin-top: 2rem;
+    }
+    .section-title {
+      font-size: 2rem;
+      font-weight: 600;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .features {
+      columns: 2;
+      column-gap: 2rem;
+      font-size: 1.2rem;
+      line-height: 1.5;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .card {
+      background: rgba(255,255,255,0.9);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .card h3 {
+      margin: 0.5rem 0;
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+    .card p {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+    .map {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="poster">
+    <div class="header">
+      <img src="file:///c:/Drive%20Files/RefinAir/RefinAir%20Logo.png" alt="RefinAir Logo" class="logo" />
+      <div>
+        <h1>RefinAir Academic Poster</h1>
+        <div class="tagline">RefinAir: Your Air, Our Care!</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Key Real‑Time Metrics</div>
+      <div class="metrics-grid">
+        <div class="card"><h3>AQI</h3><p>Moderate (54)</p></div>
+        <div class="card"><h3>CO₂ (ppm)</h3><p>492</p></div>
+        <div class="card"><h3>Temperature (°C)</h3><p>26.4</p></div>
+        <div class="card"><h3>Humidity (%)</h3><p>81.7</p></div>
+        <div class="card"><h3>PM2.5 (µg/m³)</h3><p>13.3</p></div>
+        <div class="card"><h3>VOCs (ppb)</h3><p>61</p></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Sensor Network Map</div>
+      <!-- Placeholder map – replace with actual map SVG/PNG if available -->
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Blank_map_of_Bangladesh.svg" alt="Bangladesh Sensor Map" class="map" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">System Features</div>
+      <ul class="features">
+        <li>Real‑time data streaming</li>
+        <li>Multi‑node sensor network (campus, urban, industrial, ecological, regional divisions)</li>
+        <li>US EPA AQI calculation</li>
+        <li>Temperature & humidity adjustments</li>
+        <li>CO₂ and VOC sensing</li>
+        <li>Air‑visual comparison</li>
+        <li>Classroom digital twin with infection‑risk modeling (Wells‑Riley)</li>
+        <li>Exportable CSV data for research</li>
+        <li>Online division station integration via Open‑Meteo</li>
+        <li>Data export for research and analysis</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RefinAir | Atmospheric & Indoor Environmental Intelligence System</title>
+    <meta name="description"
+        content="Cloud-Driven IoT Big Data Solution and Atmospheric Predictive Analysis Platform. Real-time air quality monitoring, satellite data assimilation, and CFD indoor digital twin.">
+
+    <!-- Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/static/images/refinair_logo.png">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+        <div class="nav-brand">
+            <div class="brand-logo-frame" title="RefinAir: Your Air, Our Care!">
+                <img src="/static/images/refinair_logo.png" alt="RefinAir: Your Air, Our Care!"
+                    class="product-brand-logo">
+            </div>
+            <div class="brand-text">
+                <span class="brand-subtitle">Air Quality Monitoring and Management System</span>
+            </div>
+        </div>
+
+        <div class="nav-metrics">
+            <div class="metric-pill" id="navAqiPill">
+                <span class="metric-label">AQI</span>
+                <span class="metric-val" id="navAqiVal">--</span>
+                <span class="badge-status" id="navAqiBadge">Evaluating</span>
+            </div>
+            <div class="metric-pill">
+                <span class="metric-label">PM2.5</span>
+                <span class="metric-val" id="navPm25Val">-- µg/m³</span>
+            </div>
+            <div class="metric-pill">
+                <span class="metric-label">TEMP / RH</span>
+                <span class="metric-val" id="navWeatherVal">--°C / --%</span>
+            </div>
+            <div class="metric-pill">
+                <span class="metric-label">AOD 550nm</span>
+                <span class="metric-val" id="navAodVal">--</span>
+            </div>
+        </div>
+
+        <div class="nav-controls">
+            <div class="clock-display" id="systemClock">
+                <i class="fa-regular fa-clock"></i>
+                <span id="currentDate">-- --- ----</span>
+                <span class="clock-time" id="currentTime">--:--:--</span>
+            </div>
+            <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="sub-navbar">
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="tab-overview">
+                <i class="fa-solid fa-gauge-high"></i> Live Telemetry
+            </button>
+            <button class="nav-tab" data-tab="tab-map">
+                <i class="fa-solid fa-earth-asia"></i> Atmospheric GIS Map
+            </button>
+            <button class="nav-tab" data-tab="tab-ml">
+                <i class="fa-solid fa-brain"></i> Satellite ML Forecasting
+            </button>
+            <button class="nav-tab" data-tab="tab-classroom">
+                <i class="fa-solid fa-school"></i> Classroom IAQ Digital Twin
+            </button>
+            <button class="nav-tab" data-tab="tab-export">
+                <i class="fa-solid fa-file-arrow-down"></i> Export Data
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="app-container">
+
+        <!-- ================= TAB 1: OVERVIEW & LIVE TELEMETRY ================= -->
+        <section id="tab-overview" class="tab-pane active">
+            <!-- Device Selection Toolbar: Multi-Device Telemetry Node Selector -->
+            <div class="device-selector-card glass-card">
+                <div class="device-selector-inner">
+                    <div class="selector-left">
+                        <span class="selector-label"><i class="fa-solid fa-microchip text-primary"></i> Active Telemetry
+                            Device:</span>
+                        <div class="selector-dropdown-wrapper">
+                            <select id="activeDeviceSelect" class="device-dropdown"
+                                aria-label="Select Telemetry Device">
+                                <option value="iub_campus" selected>Node IUB-01: Deployed at IUB (Independent
+                                    University, Bangladesh &bull; Campus Environmental Station)</option>
+                                <option value="dhaka_central">Node DHK-02: Dhaka Central Atmospheric Ground Reference
+                                </option>
+                                <option value="bashundhara_north">Node BSH-03: Bashundhara R/A Microclimate Node
+                                </option>
+                                <option value="gazipur_industrial">Node GZP-04: Gazipur Industrial Corridor Hub</option>
+                                <option value="gulshan_eco">Node GLN-05: Gulshan-2 Lake Park Ecological Sensor</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="selector-right">
+                        <span class="device-badge deployed-iub" id="activeDeviceDeploymentBadge">
+                            <i class="fa-solid fa-building-columns"></i> Deployed at IUB
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Grid: Primary AQI Gauge + Summary Cards -->
+            <div class="overview-hero-grid">
+                <!-- AQI Gauge Card -->
+                <div class="glass-card aqi-hero-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-shield-halved text-primary"></i> Air Quality Index (US EPA & DoE
+                            Standard)
+                        </div>
+                        <span class="sensor-badge" id="telemetryUpdatePing">Updated Just Now</span>
+                    </div>
+                    <div class="aqi-hero-content">
+                        <div class="aqi-gauge-wrapper">
+                            <div class="gauge-ring" id="gaugeRing">
+                                <div class="gauge-inner">
+                                    <span class="gauge-number" id="heroAqiNumber">--</span>
+                                    <span class="gauge-sublabel">AQI INDEX</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="aqi-hero-details">
+                            <div class="aqi-category-badge" id="heroAqiCategory">Calculating...</div>
+                            <p class="aqi-advisory-text" id="heroAqiAdvisory">
+                                Analyzing real-time particulate matter concentration and atmospheric conditions.
+                            </p>
+                            <!-- AQI Color Line with Explicit Category Labels -->
+                            <div class="aqi-spectrum-wrapper">
+                                <div class="aqi-spectrum-bar">
+                                    <div class="spectrum-segment good" title="Good (0-50)"></div>
+                                    <div class="spectrum-segment moderate" title="Moderate (51-100)"></div>
+                                    <div class="spectrum-segment sensitive"
+                                        title="Unhealthy for Sensitive Groups (101-150)"></div>
+                                    <div class="spectrum-segment unhealthy" title="Unhealthy (151-200)"></div>
+                                    <div class="spectrum-segment very-unhealthy" title="Very Unhealthy (201-300)"></div>
+                                    <div class="spectrum-segment hazardous" title="Hazardous (301-500)"></div>
+                                </div>
+                                <div class="aqi-spectrum-legend">
+                                    <div class="spectrum-legend-item good"><span class="legend-color-dot"></span><span
+                                            class="legend-text"><strong>Good</strong>0–50</span></div>
+                                    <div class="spectrum-legend-item moderate"><span
+                                            class="legend-color-dot"></span><span
+                                            class="legend-text"><strong>Moderate</strong>51–100</span></div>
+                                    <div class="spectrum-legend-item sensitive"><span
+                                            class="legend-color-dot"></span><span
+                                            class="legend-text"><strong>Sensitive</strong>101–150</span></div>
+                                    <div class="spectrum-legend-item unhealthy"><span
+                                            class="legend-color-dot"></span><span
+                                            class="legend-text"><strong>Unhealthy</strong>151–200</span></div>
+                                    <div class="spectrum-legend-item very-unhealthy"><span
+                                            class="legend-color-dot"></span><span class="legend-text"><strong>Very
+                                                Unhealthy</strong>201–300</span></div>
+                                    <div class="spectrum-legend-item hazardous"><span
+                                            class="legend-color-dot"></span><span
+                                            class="legend-text"><strong>Hazardous</strong>301–500</span></div>
+                                </div>
+                            </div>
+                            <div class="station-meta">
+                                <span><i class="fa-solid fa-location-dot"></i> Monitored Unit: <strong
+                                        id="stationDeploymentText">Deployed at IUB (Independent University,
+                                        Bangladesh)</strong></span>
+                                <span><i class="fa-solid fa-satellite"></i> Satellite: <strong>NASA Aqua MODIS
+                                        (MYD08_D3)</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Particulate Matter Suite -->
+                <div class="glass-card pm-suite-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-smog text-accent"></i> Particulate Matter Sensor
+                        </div>
+                    </div>
+                    <div class="pm-cards-container">
+                        <div class="sub-metric-card">
+                            <div class="sub-metric-header">
+                                <span>PM 1.0 (Ultrafine)</span>
+                                <i class="fa-solid fa-circle-dot text-info"></i>
+                            </div>
+                            <div class="sub-metric-value" id="cardPm1">--</div>
+                            <div class="sub-metric-unit">µg/m³</div>
+                            <div class="mini-progress">
+                                <div class="mini-bar" id="barPm1" style="width: 25%"></div>
+                            </div>
+                        </div>
+
+                        <div class="sub-metric-card highlighted">
+                            <div class="sub-metric-header">
+                                <span>PM 2.5 (Fine Particles)</span>
+                                <i class="fa-solid fa-triangle-exclamation text-warning"></i>
+                            </div>
+                            <div class="sub-metric-value text-accent" id="cardPm25">--</div>
+                            <div class="sub-metric-unit">µg/m³ (Key Pollutant)</div>
+                            <div class="mini-progress">
+                                <div class="mini-bar" id="barPm25" style="width: 55%"></div>
+                            </div>
+                        </div>
+
+                        <div class="sub-metric-card">
+                            <div class="sub-metric-header">
+                                <span>PM 10 (Coarse Dust)</span>
+                                <i class="fa-solid fa-wind text-primary"></i>
+                            </div>
+                            <div class="sub-metric-value" id="cardPm10">--</div>
+                            <div class="sub-metric-unit">µg/m³</div>
+                            <div class="mini-progress">
+                                <div class="mini-bar" id="barPm10" style="width: 40%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer-note">
+                        <i class="fa-solid fa-check-circle text-success"></i>Particulate Matter sensor calibrated
+                        against
+                        Industrial graded sensor.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sensor Grid: Environmental Climate + Chemical Gases -->
+            <div class="telemetry-grid">
+                <!-- Temperature -->
+                <div class="sensor-card">
+                    <div class="sensor-icon-box temp-bg"><i class="fa-solid fa-temperature-half"></i></div>
+                    <div class="sensor-info">
+                        <span class="sensor-name">Ambient Temperature</span>
+                        <div class="sensor-val" id="valTemp">-- <span class="unit">°C</span></div>
+                    </div>
+                </div>
+
+                <!-- Humidity -->
+                <div class="sensor-card">
+                    <div class="sensor-icon-box humid-bg"><i class="fa-solid fa-droplet"></i></div>
+                    <div class="sensor-info">
+                        <span class="sensor-name">Relative Humidity</span>
+                        <div class="sensor-val" id="valHumid">-- <span class="unit">%</span></div>
+                        <span class="sensor-sub">Moisture Content</span>
+                    </div>
+                </div>
+
+                <!-- CO2 -->
+                <div class="sensor-card">
+                    <div class="sensor-icon-box co2-bg"><i class="fa-solid fa-cloud"></i></div>
+                    <div class="sensor-info">
+                        <span class="sensor-name">Carbon Dioxide (CO₂)</span>
+                        <div class="sensor-val" id="valCo2">-- <span class="unit">ppm</span></div>
+                    </div>
+                </div>
+
+                <!-- CO -->
+                <div class="sensor-card">
+                    <div class="sensor-icon-box co-bg">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+                            <path d="M8 19h8" />
+                            <path d="M6 22h12" />
+                        </svg>
+                    </div>
+                    <div class="sensor-info">
+                        <span class="sensor-name">Carbon Monoxide (CO)</span>
+                        <div class="sensor-val" id="valCo">-- <span class="unit">ppm</span></div>
+                    </div>
+                </div>
+
+                <!-- NO2 -->
+                <div class="sensor-card">
+                    <div class="sensor-icon-box no2-bg"><i class="fa-solid fa-flask-vial"></i></div>
+                    <div class="sensor-info">
+                        <span class="sensor-name">Nitrogen Dioxide (NO₂)</span>
+                        <div class="sensor-val" id="valNo2">-- <span class="unit">ppm</span></div>
+                    </div>
+                </div>
+
+                <!-- VOC -->
+                <div class="sensor-card">
+                    <div class="sensor-icon-box voc-bg"><i class="fa-solid fa-spray-can-sparkles"></i></div>
+                    <div class="sensor-info">
+                        <span class="sensor-name">Volatile Organics (VOCs)</span>
+                        <div class="sensor-val" id="valVoc">-- <span class="unit">ppm</span></div>
+                        <span class="sensor-sub">Ethanol, Methane, Butane</span>
+                    </div>
+                </div>
+
+                <!-- AOD 550nm -->
+                <div class="sensor-card">
+                    <div class="sensor-icon-box aod-bg"><i class="fa-solid fa-satellite-dish"></i></div>
+                    <div class="sensor-info">
+                        <span class="sensor-name">Satellite AOD (550nm)</span>
+                        <div class="sensor-val" id="valAod">-- <span class="unit">dim</span></div>
+                        <span class="sensor-sub">NASA Aqua MODIS</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Streaming Multi-Trace Line Chart -->
+            <div class="glass-card chart-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-chart-line text-primary"></i> Real-Time Telemetry Trend (High-Frequency
+                        Observation Stream &bull; Last 5 Hours)
+                    </div>
+                    <span class="sensor-badge"
+                        style="background: rgba(56, 189, 248, 0.12); color: var(--accent-blue); border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 600;">5-Hour
+                        Observation Stream</span>
+                    <div class="chart-controls">
+                        <button class="chart-toggle-btn active" data-trace="pm">Particulate Matter</button>
+                        <button class="chart-toggle-btn" data-trace="climate">Temp & RH</button>
+                        <button class="chart-toggle-btn" data-trace="gases">Gaseous Contaminants</button>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="liveTelemetryChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: ATMOSPHERIC GIS MAP ================= -->
+        <section id="tab-map" class="tab-pane">
+            <div class="map-layout-grid">
+                <!-- Map Left: Leaflet Interactive Map -->
+                <div class="glass-card map-view-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-map-location-dot text-primary"></i> Geospatial Environmental
+                            Surveillance Network
+                        </div>
+                        <div class="map-layer-toggles">
+                            <button class="layer-pill active" id="layerDivisions"><i class="fa-solid fa-city"></i>
+                                Division Stations</button>
+                            <button class="layer-pill active" id="layerIndustrial"><i class="fa-solid fa-industry"></i>
+                                Industrial Hubs</button>
+                        </div>
+                    </div>
+                    <div id="gisMap" class="leaflet-map-container"></div>
+                </div>
+
+                <!-- Map Right: Station Details Drawer -->
+                <div class="glass-card map-sidebar-card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-tower-broadcast text-accent"></i> Monitoring
+                            Station Details</div>
+                    </div>
+                    <div class="sidebar-station-info" id="selectedStationDetails">
+                        <div class="empty-selection-placeholder">
+                            <i class="fa-solid fa-hand-pointer text-muted"></i>
+                            <p>Click on any division station or industrial zone marker on the map to inspect localized
+                                real-time environmental telemetry.</p>
+                        </div>
+                    </div>
+
+                    <div class="station-quick-list">
+                        <div class="card-subtitle"><i class="fa-solid fa-city"></i> Division Surveillance Nodes</div>
+                        <div class="divisions-mini-grid" id="divisionsMiniGrid">
+                            <!-- Populated via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: SATELLITE ML FORECASTING ================= -->
+        <section id="tab-ml" class="tab-pane">
+            <div class="ml-forecast-dashboard">
+                <!-- Top Row: Hero Prediction Card & Key Atmospheric Drivers -->
+                <div class="ml-forecast-hero-grid">
+                    <!-- Hero Forecast Card: Real Prediction Outputs -->
+                    <div class="glass-card ml-pred-hero-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fa-solid fa-satellite-dish text-primary"></i> Satellite-Assimilated
+                                Atmospheric PM2.5 Forecast
+                            </div>
+                            <span class="badge-status-green"><i class="fa-solid fa-bolt"></i> Operational Model
+                                Active</span>
+                        </div>
+
+                        <div class="ml-pred-body">
+                            <div class="pred-primary-row">
+                                <div class="pred-val-cluster">
+                                    <span class="pred-label">FORECAST SURFACE CONCENTRATION</span>
+                                    <div class="pred-number-row">
+                                        <span class="pred-huge-number" id="mlPredPm25Val">134.8</span>
+                                        <span class="pred-huge-unit">µg/m³</span>
+                                    </div>
+                                    <div class="pred-ci-tag" id="mlPredCiTag">
+                                        <i class="fa-solid fa-check-double text-success"></i> 95% Confidence Interval:
+                                        [129.2 – 140.4] µg/m³
+                                    </div>
+                                </div>
+
+                                <div class="pred-aqi-box" id="mlPredAqiBox">
+                                    <span class="pred-aqi-title">PROJECTED AQI</span>
+                                    <span class="pred-aqi-num" id="mlPredAqiNum">192</span>
+                                    <span class="pred-aqi-status" id="mlPredAqiStatus">Unhealthy</span>
+                                </div>
+                            </div>
+
+                            <div class="pred-advisory-banner" id="mlPredAdvisoryBanner">
+                                <i class="fa-solid fa-triangle-exclamation text-warning"></i>
+                                <span id="mlPredAdvisoryText">Elevated boundary-layer particulate accumulation observed.
+                                    Sensitive groups should wear respirators and limit outdoor physical activity.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Satellite Assimilation Drivers Grid -->
+                    <div class="glass-card ml-drivers-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fa-solid fa-satellite text-accent"></i> Assimilated Satellite & Climate
+                                Telemetry
+                            </div>
+                            <span class="text-xs text-muted">NASA Aqua MODIS (MYD08_D3)</span>
+                        </div>
+
+                        <div class="assimilation-drivers-grid">
+                            <div class="driver-card">
+                                <div class="driver-icon"><i class="fa-solid fa-sun text-warning"></i></div>
+                                <div class="driver-content">
+                                    <span class="driver-name">Aerosol Optical Depth (AOD 550nm)</span>
+                                    <span class="driver-value" id="mlDriverAod">0.68</span>
+                                    <span class="driver-sub">NASA Aqua MODIS</span>
+                                </div>
+                            </div>
+
+                            <div class="driver-card">
+                                <div class="driver-icon"><i class="fa-solid fa-eye text-info"></i></div>
+                                <div class="driver-content">
+                                    <span class="driver-name">Atmospheric Visibility</span>
+                                    <span class="driver-value" id="mlDriverVis">6.2 km</span>
+                                    <span class="driver-sub">Strongest inverse driver (58.4%)</span>
+                                </div>
+                            </div>
+
+                            <div class="driver-card">
+                                <div class="driver-icon"><i class="fa-solid fa-droplet text-primary"></i></div>
+                                <div class="driver-content">
+                                    <span class="driver-name">Relative Humidity</span>
+                                    <span class="driver-value" id="mlDriverRh">68.5 %</span>
+                                    <span class="driver-sub">Hygroscopic aerosol growth</span>
+                                </div>
+                            </div>
+
+                            <div class="driver-card">
+                                <div class="driver-icon"><i class="fa-solid fa-wind text-secondary"></i></div>
+                                <div class="driver-content">
+                                    <span class="driver-name">Surface Wind Speed</span>
+                                    <span class="driver-value" id="mlDriverWind">4.8 mph</span>
+                                    <span class="driver-sub">Stagnant boundary layer</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: 24-Hour Projected Trajectory Forecast Chart -->
+                <div class="glass-card mt-3">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-chart-area text-primary"></i> 24-Hour Atmospheric PM2.5 Forecast
+                            Trajectory & Dispersion Projection
+                        </div>
+                        <div class="forecast-meta-pills">
+                            <span class="meta-pill"><i class="fa-solid fa-clock"></i> Hourly Granularity</span>
+                            <span class="meta-pill"><i class="fa-solid fa-shield-halved"></i> EPA Breakpoint
+                                Standard</span>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="satelliteForecastChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: CLASSROOM IAQ DIGITAL TWIN ================= -->
+        <section id="tab-classroom" class="tab-pane">
+            <div class="classroom-grid">
+                <!-- Left: Interactive CAD Twin & 3D CFD Simulation -->
+                <div class="glass-card classroom-layout-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-building-user text-primary"></i> Classroom BC6007 Digital Twin
+                            (10-Node Spatial Mesh & CFD Simulation)
+                        </div>
+                        <div class="twin-view-controls">
+                            <button class="cfd-view-pill active" id="viewMode2D"><i
+                                    class="fa-solid fa-compass-drafting"></i> 2D CAD Floorplan</button>
+                            <button class="cfd-view-pill" id="viewMode3D"><i class="fa-solid fa-cube"></i> ANSYS Fluent
+                                3D Slice</button>
+                        </div>
+                    </div>
+
+                    <!-- CFD Controls Bar: Secondary Layer Toggles & Mode Pills -->
+                    <div class="cfd-toolbar">
+                        <div class="cfd-layer-controls">
+                            <button class="cfd-pill active" data-cfd="temp"><i class="fa-solid fa-temperature-half"></i>
+                                Temperature (°C)</button>
+                            <button class="cfd-pill" data-cfd="co2"><i class="fa-solid fa-cloud"></i> CO₂ Mass
+                                Fraction</button>
+                            <button class="cfd-pill" data-cfd="pm25"><i class="fa-solid fa-smog"></i> PM2.5
+                                (µg/m³)</button>
+                            <button class="cfd-pill" data-cfd="velocity"><i class="fa-solid fa-wind"></i> Airflow
+                                Velocity</button>
+                        </div>
+                        <div class="cfd-toggles-cluster">
+                            <label class="cfd-tool-item"><input type="checkbox" id="cfdToggleHeatmap" checked>
+                                Continuous 2D Heatmap</label>
+                            <label class="cfd-tool-item"><input type="checkbox" id="cfdToggleIsobars" checked> Isobar
+                                Contours</label>
+                            <label class="cfd-tool-item"><input type="checkbox" id="cfdToggleNodes" checked> 10 Sensor
+                                Pins</label>
+                            <label class="cfd-tool-item"><input type="checkbox" id="cfdToggleParticles" checked> AC
+                                Streamlines</label>
+                        </div>
+                    </div>
+
+                    <!-- 2D Interactive Classroom CAD Floorplan View -->
+                    <div class="classroom-canvas-wrapper" id="classroomCanvasWrapper">
+                        <div class="classroom-cad-room" id="classroomRoom">
+                            <!-- Compass Rose (E: Top, W: Bottom, N: Left, S: Right) -->
+                            <div class="cad-compass-rose"
+                                title="Orientation: Top=East, Bottom=West, Left=North, Right=South">
+                                <div class="compass-arrow north-arrow"><span>N</span></div>
+                                <div class="compass-arrow east-arrow"><span>E</span></div>
+                                <div class="compass-arrow south-arrow"><span>S</span></div>
+                                <div class="compass-arrow west-arrow"><span>W</span></div>
+                            </div>
+
+                            <!-- Top Wall (East): Whiteboard, Top Whiteboard Sensor, Teacher Desk & Chair, Door -->
+                            <div class="cad-wall wall-east-top">
+                                <div class="cad-whiteboard-assembly">
+                                    <div class="cad-wb-sensor" id="cadWbSensor"
+                                        title="Sensor Node D-2 (Mounted on Top of Whiteboard)">
+                                        <span class="sensor-dot"></span>
+                                        <span class="sensor-tag">Sensor D-2</span>
+                                    </div>
+                                    <div class="cad-whiteboard">
+                                        <span class="wb-label">WHITEBOARD / PROJECTION</span>
+                                    </div>
+                                </div>
+                                <div class="cad-teacher-cluster">
+                                    <div class="cad-teacher-desk"><span class="label">Lecturer Desk</span></div>
+                                    <div class="cad-teacher-chair"></div>
+                                </div>
+                                <div class="cad-door-assembly">
+                                    <div class="cad-door-frame">
+                                        <div class="cad-door-leaf"></div>
+                                        <div class="cad-door-swing"></div>
+                                        <span class="cad-door-label">Door</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Left Wall (North): Windows and Two Split AC Units Side by Side -->
+                            <div class="cad-wall wall-north-left">
+                                <div class="cad-window-section top-win">
+                                    <div class="win-mullions"></div>
+                                    <div class="cad-wall-device d1-box" title="Sensor D-1"><span>D-1</span></div>
+                                </div>
+                                <div class="cad-ac-cluster">
+                                    <div class="cad-split-ac-box ac-1" id="cadSplitAc1"
+                                        title="Split Air Conditioning Unit 1">
+                                        <div class="ac-inner-box">
+                                            <span class="ac-title">AC-1</span>
+                                            <span class="ac-sub">Split</span>
+                                        </div>
+                                    </div>
+                                    <div class="cad-split-ac-box ac-2" id="cadSplitAc2"
+                                        title="Split Air Conditioning Unit 2">
+                                        <div class="ac-inner-box">
+                                            <span class="ac-title">AC-2</span>
+                                            <span class="ac-sub">Split</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cad-window-section bottom-win">
+                                    <div class="win-mullions"></div>
+                                </div>
+                            </div>
+
+                            <!-- Right Wall (South): Structural Columns & D-3 -->
+                            <div class="cad-wall wall-south-right">
+                                <div class="south-wall-column top-col"></div>
+                                <div class="cad-wall-device d3-box"><span>D-3</span></div>
+                                <div class="south-wall-column bottom-col"></div>
+                                <span class="wall-rot-label">South Boundary Wall</span>
+                            </div>
+
+                            <!-- Bottom Wall (West / Rear): D-4 Center -->
+                            <div class="cad-wall wall-west-bottom">
+                                <div class="cad-wall-device d4-box"><span>D-4</span></div>
+                                <span class="wall-label">West Wall (Rear Boundary &bull; 12.4m Length)</span>
+                            </div>
+
+                            <!-- Interior Student Seating Grid (5 Columns of Chairs Facing East/Top) -->
+                            <div class="cad-student-seating-grid" id="cadStudentSeating">
+                                <!-- Column 1 (Left - 7 Chairs under AC zone) -->
+                                <div class="seating-col col-1">
+                                    <div class="cad-chair in-ac"></div>
+                                    <div class="cad-chair in-ac"></div>
+                                    <div class="cad-chair in-ac"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                </div>
+                                <!-- Column 2 (7 Chairs) -->
+                                <div class="seating-col col-2">
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                </div>
+                                <!-- Column 3 (Center - 7 Chairs) -->
+                                <div class="seating-col col-3">
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                </div>
+                                <!-- Column 4 (7 Chairs) -->
+                                <div class="seating-col col-4">
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                </div>
+                                <!-- Column 5 (Right - 6 Chairs) -->
+                                <div class="seating-col col-5">
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                    <div class="cad-chair"></div>
+                                </div>
+                            </div>
+
+                            <!-- Dynamic 2D Continuous Scalar Field CFD Canvas Overlay -->
+                            <canvas id="cfdOverlayCanvas" class="cfd-canvas-overlay"></canvas>
+
+                            <!-- 10 Interactive Spatial Sensor Node Markers -->
+                            <div id="spatialNodesOverlay" class="spatial-nodes-container"></div>
+                        </div>
+
+                        <!-- 3D CFD Simulation Cut-Plane View (ANSYS Fluent Plane 1xz) -->
+                        <div class="classroom-cfd-3d-panel" id="classroomCfd3DPanel" style="display: none;">
+                            <div class="cfd-3d-header">
+                                <div class="cfd-3d-title">
+                                    <strong id="cfd3DTitle">c) CO₂ Mass Fraction &bull; Plane 1xz (ANSYS Fluent CFD RANS
+                                        k-ω SST)</strong>
+                                </div>
+                                <div class="cfd-3d-scale-tag" id="cfd3DScaleTag">Real-time Exhaled Occupant Plume
+                                    Dispersion & Thermal Buoyancy</div>
+                            </div>
+
+                            <div class="cfd-3d-viewport">
+                                <!-- ANSYS Fluent Scientific Colormap Bar -->
+                                <div class="ansys-legend-bar">
+                                    <span class="ansys-leg-title" id="ansysLegTitle">Co2.Mass Fraction<br><small>Plane
+                                            1xz</small></span>
+                                    <div class="ansys-gradient-ramp" id="ansysGradientRamp"></div>
+                                    <div class="ansys-legend-labels" id="ansysLegendLabels">
+                                        <span id="ansysLegL5">1.280e-03</span>
+                                        <span id="ansysLegL4">9.600e-04</span>
+                                        <span id="ansysLegL3">6.400e-04</span>
+                                        <span id="ansysLegL2">4.800e-04</span>
+                                        <span id="ansysLegL1">3.900e-04</span>
+                                    </div>
+                                </div>
+
+                                <!-- 3D Perspective Dynamic Simulation (ANSYS Fluent Plane 1xz) -->
+                                <div class="ansys-slice-container">
+                                    <svg viewBox="0 0 760 380" class="ansys-slice-svg" id="ansysSliceSvg">
+                                        <!-- Room 3D Isometric Bounding Frame -->
+                                        <polygon points="120,60 620,60 700,120 200,120" fill="none" stroke="#475569"
+                                            stroke-width="1.5" stroke-dasharray="4,4" />
+                                        <polygon points="200,120 700,120 700,280 200,280" fill="rgba(15,23,42,0.4)"
+                                            stroke="#64748b" stroke-width="2" />
+                                        <line x1="120" y1="60" x2="120" y2="220" stroke="#475569" stroke-width="1.5"
+                                            stroke-dasharray="4,4" />
+                                        <line x1="620" y1="60" x2="620" y2="220" stroke="#475569" stroke-width="1.5"
+                                            stroke-dasharray="4,4" />
+                                        <line x1="700" y1="120" x2="700" y2="280" stroke="#64748b" stroke-width="2" />
+                                        <line x1="200" y1="280" x2="120" y2="220" stroke="#64748b" stroke-width="2" />
+                                        <line x1="700" y1="280" x2="620" y2="220" stroke="#64748b" stroke-width="2" />
+                                        <line x1="120" y1="220" x2="620" y2="220" stroke="#64748b" stroke-width="2" />
+
+                                        <!-- Front Door at East End with Authentic Room Outlet Vent -->
+                                        <rect x="660" y="160" width="28" height="70" fill="rgba(30,41,59,0.85)"
+                                            stroke="#38bdf8" stroke-width="1.5" />
+                                        <rect id="ansysDoorOutlet" x="668" y="210" width="12" height="12" fill="#0284c7"
+                                            stroke="#38bdf8" stroke-width="1.2" />
+                                        <text x="674" y="234" font-size="8" fill="#38bdf8" text-anchor="middle"
+                                            font-weight="bold">Outlet</text>
+
+                                        <!-- Two Split AC Units on North Wall Side by Side -->
+                                        <rect x="230" y="80" width="55" height="18" fill="#f43f5e" fill-opacity="0.35"
+                                            stroke="#f43f5e" stroke-width="1.5" rx="2" />
+                                        <text x="257" y="93" font-size="9" fill="#ffffff" font-weight="bold"
+                                            text-anchor="middle">AC-1</text>
+                                        <rect x="295" y="80" width="55" height="18" fill="#f43f5e" fill-opacity="0.35"
+                                            stroke="#f43f5e" stroke-width="1.5" rx="2" />
+                                        <text x="322" y="93" font-size="9" fill="#ffffff" font-weight="bold"
+                                            text-anchor="middle">AC-2</text>
+
+                                        <!-- Vertical Cut Plane (Plane 1xz) with Continuous Scalar Dispersion Gradient -->
+                                        <defs>
+                                            <linearGradient id="sliceBaseGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                                                <stop offset="0%" stop-color="#0284c7" stop-opacity="0.75" />
+                                                <stop offset="45%" stop-color="#10b981" stop-opacity="0.75" />
+                                                <stop offset="70%" stop-color="#eab308" stop-opacity="0.85" />
+                                                <stop offset="100%" stop-color="#ef4444" stop-opacity="0.90" />
+                                            </linearGradient>
+                                            <radialGradient id="plumeGlow" cx="50%" cy="50%" r="50%">
+                                                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.95" />
+                                                <stop offset="50%" stop-color="#f59e0b" stop-opacity="0.80" />
+                                                <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
+                                            </radialGradient>
+                                        </defs>
+
+                                        <!-- The Vertical Slice Geometry -->
+                                        <polygon id="ansysSlicePoly" points="170,110 650,110 650,260 170,260"
+                                            fill="url(#sliceBaseGrad)" stroke="#10b981" stroke-width="1.5" />
+
+                                        <!-- Isobar Contours on Plane 1xz -->
+                                        <g id="ansysIsobars" stroke="rgba(255,255,255,0.3)" stroke-width="1"
+                                            stroke-dasharray="3,3" fill="none">
+                                            <path d="M 170,150 Q 410,140 650,150" />
+                                            <path d="M 170,190 Q 410,180 650,190" />
+                                            <path d="M 170,230 Q 410,220 650,230" />
+                                        </g>
+
+                                        <!-- Student Occupant Mannequins & Rising Exhaled CO2 Plumes -->
+                                        <!-- Occupant 1 -->
+                                        <rect x="210" y="215" width="16" height="26" rx="3" fill="#d97706" />
+                                        <circle cx="218" cy="207" r="7" fill="#b45309" />
+                                        <ellipse cx="225" cy="180" rx="14" ry="24" fill="url(#plumeGlow)"
+                                            class="occupant-plume" />
+
+                                        <!-- Occupant 2 -->
+                                        <rect x="260" y="215" width="16" height="26" rx="3" fill="#d97706" />
+                                        <circle cx="268" cy="207" r="7" fill="#b45309" />
+                                        <ellipse cx="275" cy="180" rx="14" ry="24" fill="url(#plumeGlow)"
+                                            class="occupant-plume" />
+
+                                        <!-- Occupant 3 -->
+                                        <rect x="310" y="215" width="16" height="26" rx="3" fill="#d97706" />
+                                        <circle cx="318" cy="207" r="7" fill="#b45309" />
+                                        <ellipse cx="325" cy="175" rx="16" ry="26" fill="url(#plumeGlow)"
+                                            class="occupant-plume" />
+
+                                        <!-- Occupant 4 -->
+                                        <rect x="360" y="215" width="16" height="26" rx="3" fill="#d97706" />
+                                        <circle cx="368" cy="207" r="7" fill="#b45309" />
+                                        <ellipse cx="375" cy="170" rx="18" ry="28" fill="url(#plumeGlow)"
+                                            class="occupant-plume" />
+
+                                        <!-- Occupant 5 -->
+                                        <rect x="410" y="215" width="16" height="26" rx="3" fill="#d97706" />
+                                        <circle cx="418" cy="207" r="7" fill="#b45309" />
+                                        <ellipse cx="425" cy="170" rx="18" ry="28" fill="url(#plumeGlow)"
+                                            class="occupant-plume" />
+
+                                        <!-- Occupant 6 -->
+                                        <rect x="460" y="215" width="16" height="26" rx="3" fill="#d97706" />
+                                        <circle cx="468" cy="207" r="7" fill="#b45309" />
+                                        <ellipse cx="475" cy="175" rx="16" ry="26" fill="url(#plumeGlow)"
+                                            class="occupant-plume" />
+
+                                        <!-- Occupant 7 -->
+                                        <rect x="510" y="215" width="16" height="26" rx="3" fill="#d97706" />
+                                        <circle cx="518" cy="207" r="7" fill="#b45309" />
+                                        <ellipse cx="525" cy="180" rx="15" ry="24" fill="url(#plumeGlow)"
+                                            class="occupant-plume" />
+
+                                        <!-- Occupant 8 -->
+                                        <rect x="560" y="215" width="16" height="26" rx="3" fill="#d97706" />
+                                        <circle cx="568" cy="207" r="7" fill="#b45309" />
+                                        <ellipse cx="575" cy="185" rx="14" ry="22" fill="url(#plumeGlow)"
+                                            class="occupant-plume" />
+
+                                        <!-- Dimension Scale Bar -->
+                                        <g transform="translate(320, 340)">
+                                            <line x1="0" y1="0" x2="240" y2="0" stroke="#94a3b8" stroke-width="2" />
+                                            <line x1="0" y1="-5" x2="0" y2="5" stroke="#94a3b8" stroke-width="2" />
+                                            <line x1="60" y1="-3" x2="60" y2="3" stroke="#94a3b8" stroke-width="1.5" />
+                                            <line x1="120" y1="-5" x2="120" y2="5" stroke="#94a3b8" stroke-width="2" />
+                                            <line x1="180" y1="-3" x2="180" y2="3" stroke="#94a3b8"
+                                                stroke-width="1.5" />
+                                            <line x1="240" y1="-5" x2="240" y2="5" stroke="#94a3b8" stroke-width="2" />
+                                            <text x="0" y="-8" font-size="10" fill="#94a3b8"
+                                                text-anchor="middle">0</text>
+                                            <text x="60" y="14" font-size="9" fill="#64748b"
+                                                text-anchor="middle">1.500</text>
+                                            <text x="120" y="-8" font-size="10" fill="#94a3b8"
+                                                text-anchor="middle">3.000</text>
+                                            <text x="180" y="14" font-size="9" fill="#64748b"
+                                                text-anchor="middle">4.500</text>
+                                            <text x="240" y="-8" font-size="10" fill="#94a3b8"
+                                                text-anchor="middle">6.000 (m)</text>
+                                        </g>
+
+                                        <!-- Coordinate Triad (Z, X, Y) -->
+                                        <g transform="translate(680, 330)">
+                                            <line x1="0" y1="0" x2="0" y2="-28" stroke="#38bdf8" stroke-width="2" />
+                                            <polygon points="0,-32 -4,-26 4,-26" fill="#38bdf8" />
+                                            <text x="8" y="-24" font-size="11" fill="#38bdf8"
+                                                font-weight="bold">Z</text>
+
+                                            <line x1="0" y1="0" x2="28" y2="0" stroke="#ef4444" stroke-width="2" />
+                                            <polygon points="32,0 26,-4 26,4" fill="#ef4444" />
+                                            <text x="32" y="12" font-size="11" fill="#ef4444"
+                                                font-weight="bold">X</text>
+
+                                            <line x1="0" y1="0" x2="-18" y2="14" stroke="#10b981" stroke-width="2" />
+                                            <polygon points="-22,17 -16,12 -19,8" fill="#10b981" />
+                                            <text x="-24" y="26" font-size="11" fill="#10b981"
+                                                font-weight="bold">Y</text>
+                                        </g>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Colormap Legend Bar -->
+                    <div class="cfd-legend-bar" id="cfdLegendBar">
+                        <span class="legend-title" id="cfdLegTitle">Temperature Distribution (°C):</span>
+                        <span class="legend-min" id="cfdLegMin">21.0 °C</span>
+                        <div class="legend-gradient" id="cfdLegGrad"></div>
+                        <span class="legend-max" id="cfdLegMax">27.5 °C</span>
+                    </div>
+                </div>
+
+                <!-- Right: Selected Node Inspector & Analytical Insights -->
+                <div class="glass-card classroom-analytics-card">
+                    <!-- Selected Sensor Node Inspector Card -->
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-microchip text-accent"></i> Selected Sensor Node Inspector
+                        </div>
+                        <span class="sensor-badge" id="inspectorNodeBadge">Node D-1</span>
+                    </div>
+
+                    <div class="node-inspector-box" id="nodeInspectorBox">
+                        <div class="inspector-header">
+                            <div>
+                                <h4 id="inspNodeName">Node D-1: North Wall (Elevated)</h4>
+                                <span class="text-muted text-sm" id="inspNodeZone">North Glazed Wall / AC Adjacent
+                                    &bull; Z = 2.40m</span>
+                            </div>
+                            <span class="badge-status-green" id="inspNodeStatus">ONLINE</span>
+                        </div>
+
+                        <div class="inspector-metrics-grid">
+                            <div class="insp-metric">
+                                <span class="insp-label">Air Temp</span>
+                                <span class="insp-val" id="inspTemp">-- °C</span>
+                            </div>
+                            <div class="insp-metric">
+                                <span class="insp-label">Relative Humidity</span>
+                                <span class="insp-val" id="inspHumidity">-- %</span>
+                            </div>
+                            <div class="insp-metric">
+                                <span class="insp-label">CO₂ Concentration</span>
+                                <span class="insp-val text-warning" id="inspCo2">-- ppm</span>
+                            </div>
+                            <div class="insp-metric">
+                                <span class="insp-label">PM 2.5</span>
+                                <span class="insp-val text-accent" id="inspPm25">-- µg/m³</span>
+                            </div>
+                            <div class="insp-metric">
+                                <span class="insp-label">PM 1.0</span>
+                                <span class="insp-val" id="inspPm1">-- µg/m³</span>
+                            </div>
+                            <div class="insp-metric">
+                                <span class="insp-label">PM 10</span>
+                                <span class="insp-val" id="inspPm10">-- µg/m³</span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-muted mt-2" id="inspNodeCoords">
+                            CAD Coordinates: X = 0.35m, Y = 3.20m, Z = 2.40m | Wall Reference D-1
+                        </div>
+                    </div>
+
+                    <!-- 10-Node Sensor Array Grid Selector -->
+                    <div class="card-subtitle mt-3"><i class="fa-solid fa-network-wired"></i> 10-Node IoT Spatial Grid
+                        (Classroom Mesh)</div>
+                    <div class="sensor-nodes-list" id="sensorNodesList">
+                        <!-- Populated dynamically via JavaScript with all 10 nodes -->
+                    </div>
+
+                    <!-- Thermal Stratification & Wells-Riley Risk -->
+                    <div class="stratification-box mt-3">
+                        <div class="strat-header">
+                            <span>THERMAL STRATIFICATION</span>
+                            <span class="strat-delta" id="stratDeltaVal">ΔT = +3.8 °C</span>
+                        </div>
+                        <p class="strat-desc">
+                            Warm air naturally ascends while chilled air from the split AC pools at the floor level,
+                            maintaining a consistent ~3.5°C to 4.0°C vertical temperature gradient between elevated and
+                            floor-level sensors.
+                        </p>
+                    </div>
+
+                    <!-- Wells-Riley Airborne Infection Risk -->
+                    <div class="infection-risk-card">
+                        <div class="card-subtitle"><i class="fa-solid fa-virus-covid"></i> Wells-Riley Airborne Viral
+                            Transmission Model</div>
+                        <div class="risk-gauge-row">
+                            <div class="risk-val-box">
+                                <span class="risk-pct" id="riskPctVal">-- %</span>
+                                <span class="risk-sub">Infection Probability</span>
+                            </div>
+                            <div class="risk-advisory-box">
+                                <span class="risk-level-badge" id="riskLevelBadge">Analyzing</span>
+                                <p id="riskAdvisoryText">Using real-time exhaled CO₂ concentration as proxy for outdoor
+                                    ventilation dilution.</p>
+                            </div>
+                        </div>
+                        <div class="ventilation-recommendation">
+                            <i class="fa-solid fa-fan text-primary"></i>
+                            <span id="ventAdvisoryText">Checking ventilation status...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 5: EXPORT DATA ================= -->
+        <section id="tab-export" class="tab-pane">
+            <div class="export-page-container">
+                <!-- Export Header & Configuration Control Bar -->
+                <div class="glass-card export-header-card">
+                    <div class="export-header-top">
+                        <div>
+                            <h2 class="export-page-title"><i class="fa-solid fa-file-arrow-down text-primary"></i>
+                                Environmental Telemetry Data Export Center</h2>
+                            <p class="export-page-subtitle">Select single or multiple environmental monitoring stations
+                                to download authenticated time-series observations in standard RFC 4180 CSV format.</p>
+                        </div>
+                        <div class="export-format-pills">
+                            <span class="sensor-badge"><i class="fa-solid fa-file-csv text-accent"></i> Standard CSV
+                                (RFC 4180)</span>
+                            <span class="sensor-badge"><i class="fa-solid fa-shield-halved text-success"></i>
+                                Authenticated Telemetry</span>
+                        </div>
+                    </div>
+
+                    <!-- Configuration Options Grid -->
+                    <div class="export-config-grid">
+                        <div class="config-field">
+                            <label for="exportTimeRange"><i class="fa-regular fa-clock text-primary"></i> Temporal
+                                Window:</label>
+                            <select id="exportTimeRange" class="export-select">
+                                <option value="5h" selected>Last 5 Hours (High-Frequency Stream &bull; 5-min intervals)
+                                </option>
+                                <option value="24h">Last 24 Hours (Diurnal Observation Cycle &bull; 15-min intervals)
+                                </option>
+                                <option value="7d">Last 7 Days (Synoptic Weekly Sequence &bull; Hourly intervals)
+                                </option>
+                                <option value="all">Full Observation History (Multi-Week Calibration Dataset)</option>
+                            </select>
+                        </div>
+
+                        <div class="config-field">
+                            <label for="exportFormatMode"><i class="fa-solid fa-layer-group text-accent"></i> Export
+                                Mode:</label>
+                            <select id="exportFormatMode" class="export-select">
+                                <option value="combined" selected>Combined Multi-Node Dataset (Single Master CSV)
+                                </option>
+                                <option value="individual">Separate Individual Files (Batch Download)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Batch Selection Shortcuts -->
+                    <div class="export-shortcuts-row">
+                        <span class="shortcuts-label"><i class="fa-solid fa-filter text-muted"></i> Quick Select:</span>
+                        <div class="shortcuts-buttons">
+                            <button class="export-pill-btn" id="btnSelectAll"><i class="fa-solid fa-check-double"></i>
+                                Select All Nodes (<span id="totalAvailableNodeCount">23</span>)</button>
+                            <button class="export-pill-btn" id="btnDeselectAll"><i class="fa-solid fa-xmark"></i>
+                                Deselect All</button>
+                            <button class="export-pill-btn" id="btnSelectPrimary"><i
+                                    class="fa-solid fa-tower-cell text-primary"></i> Primary Ambient (5)</button>
+                            <button class="export-pill-btn" id="btnSelectClassroom"><i
+                                    class="fa-solid fa-school text-warning"></i> Classroom Mesh (10)</button>
+                            <button class="export-pill-btn" id="btnSelectDivisions"><i
+                                    class="fa-solid fa-earth-asia text-success"></i> Regional Divisions (8)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Node Selection Categorized Sections -->
+                <div class="export-sections-wrapper" id="exportSectionsWrapper">
+                    <div class="export-category-block">
+                        <div class="category-header">
+                            <div class="cat-title"><i class="fa-solid fa-tower-cell text-primary"></i> Primary &
+                                Regional Ambient Monitoring Stations (5 Nodes)</div>
+                            <button class="cat-toggle-btn" data-cat="primary">Select Group</button>
+                        </div>
+                        <div class="export-cards-grid" id="gridPrimaryNodes"></div>
+                    </div>
+
+                    <div class="export-category-block">
+                        <div class="category-header">
+                            <div class="cat-title"><i class="fa-solid fa-school text-warning"></i> Classroom BC6007
+                                Spatial Mesh Array (10 Nodes)</div>
+                            <button class="cat-toggle-btn" data-cat="classroom">Select Group</button>
+                        </div>
+                        <div class="export-cards-grid" id="gridClassroomNodes"></div>
+                    </div>
+
+                    <div class="export-category-block">
+                        <div class="category-header">
+                            <div class="cat-title"><i class="fa-solid fa-earth-asia text-success"></i> Regional
+                                Administrative Division Stations (8 Nodes)</div>
+                            <button class="cat-toggle-btn" data-cat="division">Select Group</button>
+                        </div>
+                        <div class="export-cards-grid" id="gridDivisionNodes"></div>
+                    </div>
+                </div>
+
+                <!-- Sticky Floating Export Action Bar -->
+                <div class="export-action-bar glass-card" id="exportActionBar">
+                    <div class="action-bar-left">
+                        <div class="action-counter">
+                            <span class="count-number" id="selectedNodesCountBadge">5</span>
+                            <span class="count-label">Nodes Selected for Download</span>
+                        </div>
+                        <div class="action-meta-tag" id="exportMetaSummary">
+                            Includes PM1.0, PM2.5, PM10, Temperature, Humidity, CO₂, CO, NO₂, VOC, AOD & AQI indices.
+                        </div>
+                    </div>
+                    <div class="action-bar-right">
+                        <button class="btn-primary-download" id="btnDownloadSelected">
+                            <i class="fa-solid fa-download"></i> Download CSV Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-left">
+            <span>RefinAir | Air Quality Monitoring and Management System</span>
+            <span class="footer-meta">Independent University, Bangladesh (IUB) &bull; University of Leeds (UK)</span>
+        </div>
+        <div class="footer-right">
+            <span class="text-muted">RefinAir v2.4</span>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Application Modules -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/telemetry.js"></script>
+    <script src="/static/js/map.js"></script>
+    <script src="/static/js/ml_dashboard.js"></script>
+    <script src="/static/js/classroom_twin.js"></script>
+    <script src="/static/js/export_manager.js"></script>
+</body>
+
+</html>
