@@ -34,6 +34,13 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 app.jinja_env.auto_reload = True
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+    return response
+
 # Workspace root path for referencing original diagrams and datasets
 WORKSPACE_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
 
@@ -44,6 +51,19 @@ def index():
 @app.route("/poster")
 def poster():
     return render_template("poster.html")
+
+@app.route("/mobile")
+@app.route("/mobile/")
+@app.route("/mobile/<path:filename>")
+def serve_mobile(filename="index.html"):
+    mobile_dir = os.path.abspath(os.path.join(BASE_DIR, "..", "RefinAir_Mobile", "www"))
+    if not os.path.isdir(mobile_dir):
+        # Fallback if bundled or running from a different relative root
+        mobile_dir = os.path.join(BASE_DIR, "mobile_www")
+    target_file = os.path.join(mobile_dir, filename)
+    if os.path.exists(target_file) and not os.path.isdir(target_file):
+        return send_from_directory(mobile_dir, filename)
+    return send_from_directory(mobile_dir, "index.html")
 
 @app.route("/api/telemetry/live")
 def api_live_telemetry():

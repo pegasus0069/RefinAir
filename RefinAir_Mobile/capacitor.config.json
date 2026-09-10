@@ -1,0 +1,15 @@
+{
+  "appId": "com.refinair.app",
+  "appName": "RefinAir",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "backgroundColor": "#080c16"
+    }
+  }
+}

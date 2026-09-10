@@ -1,0 +1,25 @@
+{
+  "name": "RefinAir Mobile",
+  "short_name": "RefinAir",
+  "description": "Atmospheric & Indoor Environmental Intelligence Mobile App",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080c16",
+  "theme_color": "#0d1527",
+  "icons": [
+    {
+      "src": "./assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["weather", "utilities", "productivity"]
+}

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0f1d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RefinAir">
+  <title>RefinAir Mobile</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app" class="mobile-container">
+    <!-- Top Header / App Bar -->
+    <header class="app-header">
+      <div class="header-left">
+        <img src="assets/logo.png" alt="RefinAir Logo" class="app-logo">
+        <div class="brand-text">
+          <span class="brand-title">RefinAir</span>
+          <span class="brand-subtitle">Atmospheric AI</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div id="connBadge" class="status-pill status-connecting">
+          <span class="status-dot"></span>
+          <span id="connText">Connecting</span>
+        </div>
+        <button id="btnHeaderSettings" class="icon-btn" aria-label="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Node Selector Pill Bar -->
+    <div class="node-bar">
+      <div class="node-selector-wrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        <select id="nodeSelect" class="node-select">
+          <option value="iub_campus" selected>IUB Campus Node (Active Ground)</option>
+          <option value="classroom_bc6007">Classroom BC6007 IAQ</option>
+          <option value="dhaka_central">Dhaka Central Baseline</option>
+          <option value="chittagong_port">Chittagong Coastal Node</option>
+        </select>
+      </div>
+      <div id="syncTime" class="sync-time">Just now</div>
+    </div>
+
+    <!-- Main Views Container -->
+    <main class="view-viewport">
+      
+      <!-- ================= 1. LIVE VIEW ================= -->
+      <section id="view-live" class="view-panel active">
+        <!-- AQI Hero Card -->
+        <div class="hero-aqi-card">
+          <div class="gauge-container">
+            <svg class="gauge-svg" viewBox="0 0 200 200">
+              <circle class="gauge-bg" cx="100" cy="100" r="82"></circle>
+              <circle id="gaugeProgress" class="gauge-progress" cx="100" cy="100" r="82"></circle>
+            </svg>
+            <div class="gauge-content">
+              <span class="gauge-label">US-AQI</span>
+              <span id="aqiVal" class="gauge-value">--</span>
+              <span id="aqiBadge" class="aqi-chip chip-moderate">Updating...</span>
+            </div>
+          </div>
+          <div class="aqi-summary">
+            <div class="primary-pollutant">Primary: <strong id="primaryPollutant">PM2.5</strong></div>
+            <p id="healthAdvice" class="health-advisory">Calibrating ground observations with NASA MODIS AOD assimilation...</p>
+          </div>
+        </div>
+
+        <!-- Hardware & AirVisual Pro Status -->
+        <div class="hardware-strip">
+          <div class="hw-item">
+            <span class="hw-label">AirVisual Pro Parity</span>
+            <span id="airVisualVal" class="hw-val">-- &micro;g/m&sup3; (0.98x)</span>
+          </div>
+          <div class="hw-divider"></div>
+          <div class="hw-item">
+            <span class="hw-label">Data Fidelity</span>
+            <span id="dataFidelity" class="hw-val text-cyan">99.8% Confirmed</span>
+          </div>
+        </div>
+
+        <!-- Metric Grid Cards -->
+        <h2 class="section-title">Microclimate & Gas Stream</h2>
+        <div class="metric-grid">
+          <div class="metric-card card-pm25">
+            <div class="metric-header">
+              <span class="metric-name">PM 2.5</span>
+              <span class="metric-unit">&micro;g/m&sup3;</span>
+            </div>
+            <div id="valPM25" class="metric-value">--</div>
+            <div class="metric-footer">
+              <div class="mini-bar-bg"><div id="barPM25" class="mini-bar-fill" style="width: 45%;"></div></div>
+              <span id="statusPM25" class="metric-sub">Fine particles</span>
+            </div>
+          </div>
+
+          <div class="metric-card card-pm10">
+            <div class="metric-header">
+              <span class="metric-name">PM 10</span>
+              <span class="metric-unit">&micro;g/m&sup3;</span>
+            </div>
+            <div id="valPM10" class="metric-value">--</div>
+            <div class="metric-footer">
+              <div class="mini-bar-bg"><div id="barPM10" class="mini-bar-fill" style="width: 30%;"></div></div>
+              <span id="statusPM10" class="metric-sub">Coarse inhalable</span>
+            </div>
+          </div>
+
+          <div class="metric-card card-pm1">
+            <div class="metric-header">
+              <span class="metric-name">PM 1.0</span>
+              <span class="metric-unit">&micro;g/m&sup3;</span>
+            </div>
+            <div id="valPM1" class="metric-value">--</div>
+            <div class="metric-footer">
+              <div class="mini-bar-bg"><div id="barPM1" class="mini-bar-fill" style="width: 25%;"></div></div>
+              <span class="metric-sub">Ultra-fine fraction</span>
+            </div>
+          </div>
+
+          <div class="metric-card card-temp">
+            <div class="metric-header">
+              <span class="metric-name">Temperature</span>
+              <span class="metric-unit">&deg;C</span>
+            </div>
+            <div id="valTemp" class="metric-value">--</div>
+            <div class="metric-footer">
+              <span id="valHumidity" class="metric-sub">Humidity: --%</span>
+            </div>
+          </div>
+
+          <div class="metric-card card-co2">
+            <div class="metric-header">
+              <span class="metric-name">CO2 Level</span>
+              <span class="metric-unit">ppm</span>
+            </div>
+            <div id="valCO2" class="metric-value">--</div>
+            <div class="metric-footer">
+              <span id="statusCO2" class="metric-sub">Indoor IAQ Baseline</span>
+            </div>
+          </div>
+
+          <div class="metric-card card-aod">
+            <div class="metric-header">
+              <span class="metric-name">Satellite AOD</span>
+              <span class="metric-unit">550 nm</span>
+            </div>
+            <div id="valAOD" class="metric-value">--</div>
+            <div class="metric-footer">
+              <span class="metric-sub">NASA MODIS Terra</span>
+            </div>
+          </div>
+        </div>
+
+        <button id="btnManualSync" class="btn-primary-action">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          Instant Telemetry Refresh
+        </button>
+      </section>
+
+      <!-- ================= 2. FORECAST & AI VIEW ================= -->
+      <section id="view-forecast" class="view-panel">
+        <div class="view-header">
+          <h2>24-Hour AI Predictive Model</h2>
+          <p>Assimilating AOD, Boundary Layer Dynamics & Meteorology</p>
+        </div>
+
+        <!-- 24h Trend Chart -->
+        <div class="card forecast-chart-card">
+          <div class="chart-header">
+            <span class="chart-title">PM2.5 Trajectory (&micro;g/m&sup3;)</span>
+            <span id="forecastPeakPill" class="tag-pill tag-warning">Peak ~76 &micro;g/m&sup3;</span>
+          </div>
+          <div class="svg-chart-container">
+            <svg id="forecastChartSvg" viewBox="0 0 340 140" preserveAspectRatio="none" class="chart-svg">
+              <!-- Path rendered via JavaScript -->
+              <defs>
+                <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.4"/>
+                  <stop offset="100%" stop-color="#4facfe" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
+              <path id="chartAreaPath" fill="url(#chartGrad)" d=""></path>
+              <path id="chartLinePath" fill="none" stroke="#00f2fe" stroke-width="2.5" d=""></path>
+            </svg>
+          </div>
+          <div id="forecastHourLabels" class="forecast-hours-row">
+            <span>Now</span>
+            <span>+6h</span>
+            <span>+12h</span>
+            <span>+18h</span>
+            <span>+24h</span>
+          </div>
+        </div>
+
+        <!-- What-If Simulator -->
+        <div class="card ml-sim-card">
+          <div class="card-title-row">
+            <h3>Interactive ML What-If Simulator</h3>
+            <span class="ensemble-badge">4-Model Ensemble</span>
+          </div>
+          <p class="card-subtitle">Adjust environmental parameters to simulate predicted PM2.5</p>
+
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Aerosol Optical Depth (AOD 550nm)</span>
+              <strong id="simValAOD">0.62</strong>
+            </div>
+            <input type="range" id="simSliderAOD" min="0.1" max="1.5" step="0.02" value="0.62">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Wind Speed (m/s)</span>
+              <strong id="simValWind">2.4 m/s</strong>
+            </div>
+            <input type="range" id="simSliderWind" min="0.2" max="12.0" step="0.2" value="2.4">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Rainfall Precipitation (mm)</span>
+              <strong id="simValRain">0.0 mm</strong>
+            </div>
+            <input type="range" id="simSliderRain" min="0.0" max="40.0" step="0.5" value="0.0">
+          </div>
+
+          <div class="sim-prediction-result">
+            <div class="pred-item">
+              <span class="pred-label">Ensemble Predicted PM2.5</span>
+              <span id="simResultPM25" class="pred-val text-cyan">64.2 &micro;g/m&sup3;</span>
+            </div>
+            <div class="pred-item">
+              <span class="pred-label">Expected AQI Category</span>
+              <span id="simResultCat" class="pred-val text-orange">Unhealthy (Sens.)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Model Benchmarks -->
+        <div class="card models-card">
+          <h3>Validated Machine Learning Benchmarks</h3>
+          <div class="model-row">
+            <span class="m-name">XGBoost Regressor</span>
+            <span class="m-metric">R&sup2; = 0.894</span>
+          </div>
+          <div class="model-row">
+            <span class="m-name">Random Forest</span>
+            <span class="m-metric">R&sup2; = 0.887</span>
+          </div>
+          <div class="model-row">
+            <span class="m-name">Multiple Linear Reg (MLR)</span>
+            <span class="m-metric">R&sup2; = 0.742</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. CLASSROOM BC6007 IAQ ================= -->
+      <section id="view-classroom" class="view-panel">
+        <div class="view-header">
+          <h2>Room BC6007 IAQ & CFD</h2>
+          <p>IUB, Leeds & Coventry University Indoor Air Investigation</p>
+        </div>
+
+        <div class="card room-meta-card">
+          <div class="room-spec-grid">
+            <div class="spec-item">
+              <span class="spec-label">Room Dimensions</span>
+              <span class="spec-val">12.4m &times; 7.0m &times; 3.0m</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">Volume</span>
+              <span class="spec-val">264.8 m&sup3;</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">HVAC Type</span>
+              <span class="spec-val">2x 10.3kW Split AC (Recirculating)</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">Occupancy Load</span>
+              <span class="spec-val">35 Occupants (Sensible heat)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sensor Stratification Comparison -->
+        <div class="card stratification-card">
+          <h3>Wall Sensor Gradient Comparison</h3>
+          <div class="strat-grid">
+            <div class="strat-column">
+              <div class="sensor-title">Front Wall Sensor (+0.34m)</div>
+              <div class="sensor-metric">
+                <span class="lbl">CO2</span>
+                <span id="frontCO2" class="val text-emerald">820 ppm</span>
+              </div>
+              <div class="sensor-metric">
+                <span class="lbl">Temp</span>
+                <span id="frontTemp" class="val">24.2&deg;C</span>
+              </div>
+            </div>
+            <div class="strat-divider">VS</div>
+            <div class="strat-column">
+              <div class="sensor-title">Rear Wall Sensor (7.0m apart)</div>
+              <div class="sensor-metric">
+                <span class="lbl">CO2</span>
+                <span id="rearCO2" class="val text-orange">1140 ppm</span>
+              </div>
+              <div class="sensor-metric">
+                <span class="lbl">Temp</span>
+                <span id="rearTemp" class="val">20.4&deg;C</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="strat-insight">
+            <div class="insight-badge">CFD Finding</div>
+            <p>Non-ducted split AC recirculates indoor air without introducing fresh oxygen, causing CO2 accumulation up to 1280 ppm in the student breathing zone.</p>
+          </div>
+        </div>
+
+        <!-- IAQ Safety Score -->
+        <div class="card iaq-action-card">
+          <h3>Ventilation Advisory</h3>
+          <div class="advisory-pill advisory-warning">
+            <span class="adv-icon">⚠️</span>
+            <div class="adv-text">
+              <strong>Purge / Fresh Air Exchange Needed</strong>
+              <span>Open windows/doors for 10 minutes between lectures to reduce CO2 build-up.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. BANGLADESH DIVISIONS ================= -->
+      <section id="view-divisions" class="view-panel">
+        <div class="view-header">
+          <h2>National Divisions Stream</h2>
+          <p>Live AQI Across 8 Bangladesh Administrative Regions</p>
+        </div>
+
+        <div id="divisionList" class="divisions-grid">
+          <!-- Populated dynamically via JS -->
+          <div class="division-card loading-card">Loading national stations...</div>
+        </div>
+      </section>
+
+      <!-- ================= 5. SETTINGS & CONNECTIVITY ================= -->
+      <section id="view-settings" class="view-panel">
+        <div class="view-header">
+          <h2>Connection & Diagnostics</h2>
+          <p>Configure Host Server & Alert Preferences</p>
+        </div>
+
+        <div class="card settings-card">
+          <h3>Host Server Endpoint</h3>
+          <p class="card-subtitle">Connect to your local PC running RefinAir (e.g. over Wi-Fi) or a cloud instance.</p>
+          
+          <div class="input-group">
+            <label for="serverUrlInput">Server URL</label>
+            <input type="url" id="serverUrlInput" placeholder="http://192.168.1.15:5000" class="text-input">
+          </div>
+
+          <div class="settings-btn-row">
+            <button id="btnTestConn" class="btn-secondary">Test Ping</button>
+            <button id="btnSaveConn" class="btn-primary">Save & Connect</button>
+          </div>
+
+          <div id="pingFeedback" class="ping-feedback hidden"></div>
+        </div>
+
+        <div class="card settings-card">
+          <h3>Simulation & Fallback</h3>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <strong>Offline Simulation Mode</strong>
+              <span>Generate realistic synthetic sensor data when away from the desktop server.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggleDemoMode">
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="card settings-card">
+          <h3>Mobile Push & In-App Alerts</h3>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <strong>AQI Threshold Alert (&gt;150)</strong>
+              <span>Send alert when air quality degrades into Unhealthy levels.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggleAqiAlert" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <strong>CO2 Spike Alert (&gt;1000 ppm)</strong>
+              <span>Notify when classroom air requires ventilation.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggleCo2Alert" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="card about-card">
+          <div class="about-header">
+            <img src="assets/logo.png" alt="RefinAir Logo" class="about-logo">
+            <div>
+              <strong>RefinAir Mobile v1.0.0</strong>
+              <div class="text-muted">Independent University, Bangladesh</div>
+            </div>
+          </div>
+          <p class="about-text">
+            Research collaborative project with University of Leeds and Coventry University. Integrates ground low-cost sensors, AirVisual Pro calibration, and NASA MODIS satellite AOD assimilation.
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-view="view-live">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <span>Live</span>
+      </button>
+
+      <button class="nav-item" data-view="view-forecast">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+          <polyline points="17 6 23 6 23 12"></polyline>
+        </svg>
+        <span>AI Forecast</span>
+      </button>
+
+      <button class="nav-item" data-view="view-classroom">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="3" y1="9" x2="21" y2="9"></line>
+          <line x1="9" y1="21" x2="9" y2="9"></line>
+        </svg>
+        <span>BC6007</span>
+      </button>
+
+      <button class="nav-item" data-view="view-divisions">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <span>Divisions</span>
+      </button>
+
+      <button class="nav-item" data-view="view-settings">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="4" y1="21" x2="4" y2="14"></line>
+          <line x1="4" y1="10" x2="4" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12" y2="3"></line>
+          <line x1="20" y1="21" x2="20" y2="16"></line>
+          <line x1="20" y1="12" x2="20" y2="3"></line>
+          <line x1="1" y1="14" x2="7" y2="14"></line>
+          <line x1="9" y1="8" x2="15" y2="8"></line>
+          <line x1="17" y1="16" x2="23" y2="16"></line>
+        </svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="toast-banner hidden">
+      <span id="toastMsg">Notification</span>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -18,9 +18,10 @@
 2. [Quick Launch Matrix](#quick-launch-matrix)
 3. [Key System Modules](#key-system-modules)
    - [RefinAir Web Platform & Digital Twin](#1-refinair-web-platform--digital-twin)
-   - [Classroom BC6007 3D Spatial IAQ](#2-classroom-bc6007-3d-spatial-iaq--cfd-modeling)
-   - [Satellite AOD Machine Learning Pipeline](#3-satellite-aod-machine-learning-pipeline)
-   - [Hardware IoT Sensor Architecture](#4-hardware-iot-sensor-architecture)
+   - [RefinAir Mobile App (Android / iOS / PWA)](#2-refinair-mobile-app-android--ios--pwa)
+   - [Classroom BC6007 3D Spatial IAQ](#3-classroom-bc6007-3d-spatial-iaq--cfd-modeling)
+   - [Satellite AOD Machine Learning Pipeline](#4-satellite-aod-machine-learning-pipeline)
+   - [Hardware IoT Sensor Architecture](#5-hardware-iot-sensor-architecture)
 4. [Machine Learning Performance & Evaluation](#machine-learning-performance--evaluation)
 5. [Hardware Validation & Cost Benchmarking](#hardware-validation--cost-benchmarking)
 6. [Repository Structure](#repository-structure)
@@ -64,18 +65,26 @@ Located in [`RefinAir_System/`](RefinAir_System/):
 - Interactive GIS surveillance map covering all 8 administrative divisions of Bangladesh and 5 major industrial corridors with asynchronous non-blocking Copernicus CAMS live feeds.
 - Data export center supporting selective node batching and temporal windows (5h, 24h, 7d, Full History).
 
-### 2. Classroom BC6007 3D Spatial IAQ & CFD Modeling
+### 2. RefinAir Mobile App (Android / iOS / PWA)
+Located in [`RefinAir_Mobile/`](RefinAir_Mobile/):
+- **Native Touch UI & Design**: Built with luxury dark mode glassmorphism, animated circular AQI gauge, and haptic feedback.
+- **Real-Time Atmospheric Telemetry**: Low-latency polling of ground sensors, AirVisual Pro calibration ($0.985\times$), and national divisions overview.
+- **24h Predictive ML & What-If Simulator**: Interactive parameter adjustment (AOD, Wind, Precipitation) with real-time multi-model ensemble inference.
+- **Offline Simulation Mode**: Autonomous mock sensor engine allowing offline field demonstrations anywhere.
+- **Multi-Platform Deployment**: Direct mobile web preview (`/mobile`), 1-tap Progressive Web App (PWA) installation to home screen, and Capacitor configuration for compiling to native Android APK (`.apk`) and iOS packages.
+
+### 3. Classroom BC6007 3D Spatial IAQ & CFD Modeling
 - Real 10-node spatial IoT observation matrix from Classroom BC6007 at Independent University, Bangladesh (Dimensions: $12.395\,\text{m} \times 7.010\,\text{m} \times 3.048\,\text{m}$, Volume: $264.8\,\text{m}^3$).
 - Inverse Distance Weighting (IDW) 2D/3D heat-map interpolation across breathing zones ($Z = 1.1\,\text{m}$) and split-AC recirculation zones ($Z = 2.4\,\text{m}$).
 - Real-time infection risk index calculations based on exhaled plume accumulation and air exchange rates.
 
-### 3. Satellite AOD Machine Learning Pipeline
+### 4. Satellite AOD Machine Learning Pipeline
 Located in [`Pollution Analysis - python/`](Pollution%20Analysis%20-%20python/) and [`RefinAir_System/ml_engine.py`](RefinAir_System/ml_engine.py):
 - Daily Aerosol Optical Depth (AOD 550nm) extracted from NASA Aqua MODIS satellite (`MYD08_D3_6_1_Deep_Blue_Aerosol_Optical_Depth_550_Land_Mean`).
 - Spatiotemporal feature engineering combining ground temperature, relative humidity, wind speed, precipitation, cloud cover, visibility, day-of-week, and calendar month.
 - 5 comparative models: Multiple Linear Regression (MLR), Random Forest, Gradient Boosting, XGBoost, and Artificial Neural Networks (ANN).
 
-### 4. Hardware IoT Sensor Architecture
+### 5. Hardware IoT Sensor Architecture
 Located in [`Arduino_Code/`](Arduino_Code/) and [`Arduino Mega Wifi/`](Arduino%20Mega%20Wifi/):
 - **Core Microcontroller**: Arduino Mega 2560 + ESP8266 WiFi SoC module.
 - **Particulate Sensing**: Plantower PMS5003 laser scattering particle counter ($\text{PM}_1$, $\text{PM}_{2.5}$, $\text{PM}_{10}$).
@@ -133,8 +142,18 @@ RefinAir/
 │   ├── ml_engine.py                         # 5-algorithm ML inference & training engine
 │   ├── cfd_aggregated.parquet               # High-frequency CFD spatial IAQ dataset (4.3 MB)
 │   ├── data/                                # Complete bundled research datasets
-│   ├── static/                              # CSS styles, JS controllers, and architecture diagrams
+│   ├── static/                              # CSS styles, JS controllers, manifest.json, sw.js
 │   └── templates/                           # index.html dashboard and poster.html views
+├── RefinAir_Mobile/                         # Standalone Mobile Application (Android / iOS / PWA)
+│   ├── capacitor.config.json                # Native mobile compilation settings
+│   ├── package.json                         # Node dependencies & Capacitor build scripts
+│   ├── README.md                            # Mobile app guide & Android APK export steps
+│   └── www/                                 # Mobile-first web assets
+│       ├── index.html                       # Native mobile viewport & 5-tab interface
+│       ├── style.css                        # Glassmorphic dark theme & safe-area insets
+│       ├── app.js                           # Telemetry engine, offline fallback & ML sim
+│       ├── manifest.json                    # Web App Manifest
+│       └── sw.js                            # Offline caching service worker
 ├── PM2.5 Data/                              # Historical ground-based PM2.5 datasets (2017–2021)
 ├── IQAIR Data/                              # Monthly AirVisual Pro reference observation dumps
 ├── Arduino_Code/                            # Main Arduino Mega 2560 firmware sketch (.ino)

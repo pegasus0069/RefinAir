@@ -3,10 +3,19 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>RefinAir | Atmospheric & Indoor Environmental Intelligence System</title>
     <meta name="description"
         content="Cloud-Driven IoT Big Data Solution and Atmospheric Predictive Analysis Platform. Real-time air quality monitoring, satellite data assimilation, and CFD indoor digital twin.">
+
+    <!-- PWA / Mobile Web App Meta Tags -->
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RefinAir">
+    <link rel="apple-touch-icon" href="/static/images/refinair_logo.png">
+    <link rel="manifest" href="/static/manifest.json">
 
     <!-- Fonts: Inter & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -95,6 +104,9 @@
             <button class="nav-tab" data-tab="tab-export">
                 <i class="fa-solid fa-file-arrow-down"></i> Export Data
             </button>
+            <a href="/mobile" class="nav-tab nav-tab-mobile" target="_blank" title="Launch RefinAir Mobile Companion App">
+                <i class="fa-solid fa-mobile-screen-button"></i> Mobile App
+            </a>
         </div>
     </nav>
 
@@ -1098,6 +1110,45 @@
         </div>
     </footer>
 
+    <!-- Mobile PWA Install Banner -->
+    <div id="mobile-install-banner" class="mobile-install-banner" style="display: none;">
+        <div class="pwa-banner-content">
+            <img src="/static/images/refinair_logo.png" alt="RefinAir" class="pwa-banner-icon">
+            <div>
+                <div class="pwa-banner-title">Install RefinAir Mobile</div>
+                <div class="pwa-banner-desc">Real-time telemetry, 3D IAQ digital twin & offline support</div>
+            </div>
+        </div>
+        <div class="pwa-banner-actions">
+            <button id="btn-pwa-install" class="btn btn-primary btn-sm"><i class="fa-solid fa-download"></i> Install</button>
+            <button id="btn-pwa-dismiss" class="btn-pwa-close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav">
+        <a href="#tab-live" class="mobile-nav-item active" data-target="tab-live">
+            <i class="fa-solid fa-gauge-high"></i>
+            <span>Telemetry</span>
+        </a>
+        <a href="#tab-classroom" class="mobile-nav-item" data-target="tab-classroom">
+            <i class="fa-solid fa-cube"></i>
+            <span>3D Twin</span>
+        </a>
+        <a href="#tab-ml" class="mobile-nav-item" data-target="tab-ml">
+            <i class="fa-solid fa-brain"></i>
+            <span>Predictor</span>
+        </a>
+        <a href="#tab-map" class="mobile-nav-item" data-target="tab-map">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <span>GIS Map</span>
+        </a>
+        <a href="#tab-export" class="mobile-nav-item" data-target="tab-export">
+            <i class="fa-solid fa-file-arrow-down"></i>
+            <span>Export</span>
+        </a>
+    </nav>
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -1109,6 +1160,7 @@
     <script src="/static/js/ml_dashboard.js"></script>
     <script src="/static/js/classroom_twin.js"></script>
     <script src="/static/js/export_manager.js"></script>
+    <script src="/static/js/mobile.js"></script>
 </body>
 
 </html>
