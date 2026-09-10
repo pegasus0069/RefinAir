@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="RefinAir: Your Air, Our Care!" width="380">
+</p>
+
 # RefinAir: Atmospheric & Indoor Environmental Intelligence System
 
 [![GitHub Release](https://img.shields.io/github/v/release/pegasus0069/RefinAir?color=brightgreen&label=Release)](https://github.com/pegasus0069/RefinAir/releases/tag/v1.0.0)

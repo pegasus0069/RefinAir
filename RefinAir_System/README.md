@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="static/images/refinair_logo.png" alt="RefinAir: Your Air, Our Care!" width="380">
+</p>
+
 # RefinAir: Atmospheric & Indoor Environmental Intelligence System
 
 [![Platform: Windows | Linux | Docker](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20Docker-blue.svg)](https://github.com/pegasus0069/RefinAir/releases)

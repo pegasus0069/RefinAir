@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="www/assets/logo.png" alt="RefinAir Logo" width="320">
+</p>
+
 # RefinAir Mobile 📱
 
 > **Atmospheric & Indoor Environmental Intelligence Mobile Application**  
